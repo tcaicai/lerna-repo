@@ -1,0 +1,22 @@
+{
+  "name": "writing",
+  "version": "1.0.0",
+  "description": "",
+  "main": "test_bind.js",
+  "scripts": {
+    "test": "qunit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tcaicai/writing.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tcaicai/writing/issues"
+  },
+  "homepage": "https://github.com/tcaicai/writing#readme",
+  "devDependencies": {
+    "qunit": "^2.18.0"
+  }
+}

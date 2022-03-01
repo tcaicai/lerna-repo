@@ -29,33 +29,33 @@
     const fun = fn.bind2(obj, 1);
     console.log("bind2", fun(2));
 
-    const fun1 = fn.bind(obj, 1);
+    const fun1 = fn.test_bind(obj, 1);
     console.log("bind1", fun1(2));
 
     /** test3：作为构造函数 */
-    // var value = 2;
-    // var foo = {
-    //   value: 1,
-    // };
-    // function bar(name, age) {
-    //   this.habit = "shopping";
-    //   console.log(this.value);
-    //   console.log(name);
-    //   console.log(age);
-    // }
+    var value = 2;
+    var foo = {
+      value: 1,
+    };
+    function bar(name, age) {
+      this.habit = "shopping";
+      console.log(this.value);
+      console.log(name);
+      console.log(age);
+    }
 
-    // bar.prototype.friend = "kevin";
-    // var bindFoo = bar.bind(foo, "daisy");
-    // var obj = new bindFoo("18");
-    // console.log(obj.habit);
-    // console.log(obj.friend);
+    bar.prototype.friend = "kevin";
+    var bindFoo = bar.test_bind(foo, "daisy");
+    var obj = new bindFoo("18");
+    console.log(obj.habit);
+    console.log(obj.friend);
 
     // console.log("------------华丽的分割线------------");
 
-    // var bindFoo1 = bar.bind(foo, "daisy");
-    // var obj1 = new bindFoo1("18");
-    // console.log(obj1.habit);
-    // console.log(obj1.friend);
+    var bindFoo1 = bar.bind2(foo, "daisy");
+    var obj1 = new bindFoo1("18");
+    console.log(obj1.habit);
+    console.log(obj1.friend);
 
     /** test2：有参数 */
     // var foo = {
@@ -67,7 +67,7 @@
     //   console.log(age);
     // }
 
-    // var bindFoo = bar.bind(foo, "daisy");
+    // var bindFoo = bar.test_bind(foo, "daisy");
     // bindFoo("18");
 
     // var bindFoo1 = bar.bind2(foo, "daisy");
@@ -81,7 +81,7 @@
     //   return this.value;
     // }
 
-    // var bindFoo = bar.bind(foo);
+    // var bindFoo = bar.test_bind(foo);
     // console.log(bindFoo());
     // var bindFoo1 = bar.bind2(foo);
     // console.log("bind2==", bindFoo1());
