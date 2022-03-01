@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>手写bind</title>
+</head>
+<body>
+<script>
+    Function.prototype.bind2 = function (obj, ...arg) {
+        obj = typeof obj === "object" && obj !== null ? obj : window;
+        let _this = this;
+        return function (...args) {
+            let allArs = [...arg, ...args];
+            return _this.call(obj, ...allArs);
+        };
+    };
+    const obj = {
+        a: 123,
+        fn: function () {
+            console.log("obj.fn");
+        },
+    };
+    function fn(num1, num2) {
+        return num1 + num2;
+    }
+
+    const fun = fn.bind2(obj, 1);
+    console.log("bind2", fun(2));
+
+    const fun1 = fn.bind(obj, 1);
+    console.log("bind1", fun1(2));
+
+    /** test3：作为构造函数 */
+    // var value = 2;
+    // var foo = {
+    //   value: 1,
+    // };
+    // function bar(name, age) {
+    //   this.habit = "shopping";
+    //   console.log(this.value);
+    //   console.log(name);
+    //   console.log(age);
+    // }
+
+    // bar.prototype.friend = "kevin";
+    // var bindFoo = bar.bind(foo, "daisy");
+    // var obj = new bindFoo("18");
+    // console.log(obj.habit);
+    // console.log(obj.friend);
+
+    // console.log("------------华丽的分割线------------");
+
+    // var bindFoo1 = bar.bind(foo, "daisy");
+    // var obj1 = new bindFoo1("18");
+    // console.log(obj1.habit);
+    // console.log(obj1.friend);
+
+    /** test2：有参数 */
+    // var foo = {
+    //   value: 1,
+    // };
+    // function bar(name, age) {
+    //   console.log(this.value);
+    //   console.log(name);
+    //   console.log(age);
+    // }
+
+    // var bindFoo = bar.bind(foo, "daisy");
+    // bindFoo("18");
+
+    // var bindFoo1 = bar.bind2(foo, "daisy");
+    // bindFoo1("18");
+
+    /** test1：有返回值的 */
+    // var foo = {
+    //   value: 1,
+    // };
+    // function bar() {
+    //   return this.value;
+    // }
+
+    // var bindFoo = bar.bind(foo);
+    // console.log(bindFoo());
+    // var bindFoo1 = bar.bind2(foo);
+    // console.log("bind2==", bindFoo1());
+</script>
+</body>
+</html>
