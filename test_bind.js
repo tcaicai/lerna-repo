@@ -16,3 +16,5 @@ function bind(obj, ...arg) {
 };
 
 module.exports = bind;
+
+
