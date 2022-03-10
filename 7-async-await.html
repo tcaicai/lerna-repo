@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>generator-promise</title>
+  </head>
+  <body>
+    <script>
+      /**
+       * async/await 实现
+       * @param {*} generatorFunc
+       */
+      function asyncToGenerator(generatorFunc) {
+        return function (...args) {
+          const gen = generatorFunc.apply(this, args);
+          return new Promise((resolve, reject) => {
+            function step(key, arg) {
+              debugger;
+              let genResult;
+              try {
+                genResult = gen[key](arg);
+              } catch (error) {
+                return reject(error);
+              }
+
+              const { value, done } = genResult;
+
+              if (done) {
+                return resolve(value);
+              } else {
+                return Promise.resolve(value).then(
+                  function onResolve(val) {
+                    step("next", val);
+                  },
+                  function onReject(err) {
+                    step("throw", err);
+                  }
+                );
+              }
+            }
+            step("next");
+          });
+        };
+      }
+
+      var getData = () =>
+        new Promise((resolve) => setTimeout(() => resolve("data"), 1000));
+      function* testG() {
+        const data = yield getData();
+        console.log("data: ", data);
+        const data2 = yield getData();
+        console.log("data2: ", data2);
+        return "success";
+      }
+
+      var gen = asyncToGenerator(testG);
+      gen().then((res) => console.log(res));
+    </script>
+  </body>
+</html>
