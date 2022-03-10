@@ -4,59 +4,66 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>generator-promise</title>
+    <title>Document</title>
   </head>
   <body>
     <script>
-      /**
-       * async/await 实现
-       * @param {*} generatorFunc
-       */
-      function asyncToGenerator(generatorFunc) {
+      const ajax = (value) =>
+        new Promise((resolve, reject) =>
+          setTimeout(() => resolve(value), 2000)
+        );
+
+      async function test(param) {
+        let res1 = await ajax(2 + param);
+        console.log("res1===", res1);
+        let res2 = await ajax(3);
+        console.log("res2===", res2);
+
+        return 99;
+      }
+      // const { res } = test(1);
+      // console.log("async===", res);
+
+      function* gen(param) {
+        let res1 = yield ajax(2 + param);
+        console.log("res1===", res1);
+        let res2 = yield ajax(3);
+        console.log("res2===", res2);
+
+        return 66;
+      }
+
+      function wrapperGen(gen) {
         return function (...args) {
-          const gen = generatorFunc.apply(this, args);
+          const generator = gen.apply(this, args);
           return new Promise((resolve, reject) => {
             function step(key, arg) {
-              debugger;
-              let genResult;
+              let genResult = {};
               try {
-                genResult = gen[key](arg);
-              } catch (error) {
-                return reject(error);
+                genResult = generator["next"](arg);
+              } catch (e) {
+                reject(e);
               }
 
               const { value, done } = genResult;
+              if (done) return resolve(value);
 
-              if (done) {
-                return resolve(value);
-              } else {
-                return Promise.resolve(value).then(
-                  function onResolve(val) {
-                    step("next", val);
-                  },
-                  function onReject(err) {
-                    step("throw", err);
-                  }
-                );
-              }
+              return Promise.resolve(value).then(
+                (res) => {
+                  step("next", res);
+                },
+                (err) => {
+                  step("throw", err);
+                }
+              );
             }
             step("next");
           });
         };
       }
 
-      var getData = () =>
-        new Promise((resolve) => setTimeout(() => resolve("data"), 1000));
-      function* testG() {
-        const data = yield getData();
-        console.log("data: ", data);
-        const data2 = yield getData();
-        console.log("data2: ", data2);
-        return "success";
-      }
-
-      var gen = asyncToGenerator(testG);
-      gen().then((res) => console.log(res));
+      let genNew = wrapperGen(gen);
+      genNew(333).then((res) => console.log("genNew", res));
     </script>
   </body>
 </html>
