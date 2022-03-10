@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>迭代器</title>
+    <script>
+      /**
+       * 迭代协议 +-- 1、可迭代协议 Symbol.iterator 可以for of
+       *        +
+       *        +----2、迭代器协议 实现next方法、返回值为{done: boolen, value: unknow}
+       *
+       * var myIterator = {
+       *        next: function() {
+       *            // ...
+       *        },
+       *       [Symbol.iterator]: function() { return this }
+       * }
+       */
+    </script>
+  </head>
+  <body>
+    <script>
+      // 数组中的迭代器 默认存在iterator方法： Array、String、Map、Set
+      let array = [1, 2, 3];
+      const iterator = array[Symbol.iterator]();
+      console.log(iterator.next());
+      console.log("%c----分割线之数组中的迭代----", "font-size:20px;color:red");
+
+      // ES6中的迭代器 generator函数
+      function* myIterator() {
+        yield 7;
+        yield "8";
+        yield "9";
+      }
+      const iterator1 = myIterator();
+
+      // 书写语法糖
+      function generator(arr = []) {
+        let length = arr.length || 0;
+        let count = 0;
+        return {
+          next: () => ({
+            value: arr[count] || undefined,
+            done: ++count <= length ? false : true,
+          }),
+          [Symbol.iterator]: function () {
+            // 支持解构
+            return this;
+          },
+        };
+      }
+
+      const i = generator([1, 2, 3]);
+      console.log(...i);
+      console.log(i.next());
+      console.log(i.next());
+      console.log(i.next());
+      console.log(i.next());
+      console.log(i.next());
+      console.log(i.next());
+
+      console.log("%c----分割线之对象可迭代----", "font-size:20px;color:green");
+      let obj = {
+        a: 123,
+        b: 456,
+        c: ["bb", "cc"],
+      };
+      // 方法一：对象之迭代器方式
+      function objIterator(...arg) {
+        const object = arg[0] || {};
+        return function iterator() {
+          let count = 0,
+            obj = object,
+            keys = Object.keys(obj),
+            length = keys.length;
+
+          return {
+            next: function () {
+              return { value: obj[keys[count]], done: ++count > length };
+            },
+          };
+        };
+      }
+      // 方法二： 对象之生成器方式
+      const aIterator = function (...arg) {
+        const object = arg[0] || {};
+        let count = 0;
+        let keys = Object.keys(object);
+        return function* () {
+          for (let i = 0; i < keys.length; i++) {
+            yield object[keys[i]];
+          }
+        };
+      };
+      obj[Symbol.iterator] = aIterator(obj);
+      console.log(...obj);
+
+      console.log("%c----分割线之string----", "font-size:20px;color:blue");
+      let str = "abcdefghijk";
+      console.log([...str]);
+    </script>
+  </body>
+</html>
