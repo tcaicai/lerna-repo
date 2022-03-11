@@ -100,6 +100,35 @@
       console.log("%c----分割线之string----", "font-size:20px;color:blue");
       let str = "abcdefghijk";
       console.log([...str]);
+
+      console.log("%c----分割线之string----", "font-size:20px;color:purple");
+
+      let obj666 = { name: 1, age: 2 };
+
+      Object.prototype[Symbol.iterator] = function () {
+        let keys = Object.keys(this);
+
+        let index = 0;
+        return {
+          next: () => {
+            if (index < keys.length) {
+              return {
+                done: index > keys.length,
+                value: this[keys[index++]],
+              }; //必须写成箭头函数，让this为当前Object的实例
+            } else {
+              return { done: true };
+            }
+          },
+          return() {
+            console.log("遍历被终止了！"); //用于当遍历被break等终止时执行的操作！
+            return { done: true };
+          },
+        };
+      };
+      for (let i of obj666) {
+        console.log(i);
+      }
     </script>
   </body>
 </html>
