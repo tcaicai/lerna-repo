@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>深拷贝</title>
+  </head>
+  <body>
+    <script>
+      // 1. Json.parse(Json.stringify(obj)) JSON只支持对象、数组、数值、字符串、布尔值和 null，其他会忽略或者转化错误
+      //        + --- 1、会忽略 undefined
+      //        + --- 2、会忽略 symbol
+      //        + --- 3、不能序列化函数正则对象等特殊对象，Date转成string，regex转成{},function忽略
+      //        + --- 4、不能处理指向相同引用的情况，相同的引用会被重复拷贝
+      let obj = {
+        reg: /^reg$/,
+        fun: function () {},
+        syb: Symbol("foo"),
+        dat: new Date(),
+        undefined: undefined,
+      };
+      let copied_obj = JSON.parse(JSON.stringify(obj));
+      console.log("before clone", obj);
+      console.log("after clone", copied_obj); // { reg: {} }
+
+      console.log("1、以上 ①②③ 的示例");
+
+      // 第四点的示例
+      let obj4 = {};
+      let obj2 = { name: "aaaaa" };
+      obj4.ttt1 = obj2;
+      obj4.ttt2 = obj2;
+      let cp = JSON.parse(JSON.stringify(obj4));
+      obj4.ttt1.name = "change";
+      cp.ttt1.name = "change";
+
+      // 因为obj的 ttt1 和 ttt2都是指向一个同一个对象，所以修改其中一个，另一个也会变，也就是说obj.ttt1 === obj.ttt2
+      console.log(obj4); // { ttt1: {name: "change"}, ttt2: {name: "change"}}
+
+      // 而通过这种方式拷贝时，obj2拷贝了两次，丢失了cp.ttt1 === cp.ttt2 的特征
+      console.log(cp); // {ttt1: {name: "change"}, ttt2: {name: "aaaaa"}}
+
+      console.log("2、以上 ④ 的示例");
+
+      // 2. 递归拷贝 --- 1、基本类型和引用类型
+      //            +
+      //           --- 2.1、引用类型之Array
+      //            +
+      //           --- 2.2、引用类型之Function
+      //            +
+      //           --- 2.3、引用类型之RegExp
+      //            +
+      //           --- 2.4、引用类型之Date
+      //            +
+      //           --- 2.5、自定义对象类型 比如Node new obj.constructor()
+      //            +
+      //           --- 3、忽略原型上的属性
+      //            +
+      //           --- 4、环形对象，例如有环链表
+      //            +
+      //           --- 5、引用同一个对象不一致问题
+
+      function deepClone(obj, cache = new Map()) {
+        if (cache.has(obj)) return cache.get(obj);
+
+        if (obj instanceof Object) {
+          let newObj = {};
+          if (obj instanceof Function) {
+            newObj = function () {
+              return obj.call(this, ...arguments);
+            };
+          } else if (obj instanceof RegExp) {
+            newObj = new RegExp(obj.source, obj.flags);
+          } else if (obj instanceof Date) {
+            newObj = new Date(obj);
+          } else {
+            newObj = new obj.constructor();
+          }
+          cache.set(obj, newObj);
+          for (let key in obj) {
+            if (obj.hasOwnProperty(key)) {
+              newObj[key] = deepClone(obj[key], cache);
+            }
+          }
+          return newObj;
+        } else {
+          return obj;
+        }
+      }
+      class Node {
+        constructor(val, next) {
+          this.val = val;
+          this.next = next;
+        }
+      }
+      let node1 = new Node(1);
+      let node2 = new Node(2);
+      node1.next = node2;
+
+      const a = {
+        i: Infinity,
+        s: "",
+        bool: false,
+        n: null,
+        u: undefined,
+        sym: Symbol(),
+        obj: {
+          i: Infinity,
+          s: "",
+          bool: false,
+          n: null,
+          u: undefined,
+          sym: Symbol(),
+        },
+        array: [
+          {
+            nan: NaN,
+            i: Infinity,
+            s: "",
+            bool: false,
+            n: null,
+            u: undefined,
+            sym: Symbol(),
+          },
+          123,
+        ],
+        fn: function () {
+          return "fn";
+        },
+        date: new Date(),
+        re: /hi\d/gi,
+      };
+      let a2 = deepClone(a);
+      console.log("-------验证-------");
+      console.log(a2 !== a);
+      console.log(a2.i === a.i);
+      console.log(a2.s === a.s);
+      console.log(a2.bool === a.bool);
+      console.log(a2.n === a.n);
+      console.log(a2.u === a.u);
+      console.log(a2.sym === a.sym);
+      console.log(a2.obj !== a.obj);
+      console.log(a2.array !== a.array);
+      console.log(a2.array[0] !== a.array[0]);
+      console.log(a2.array[0].i === a.array[0].i);
+      console.log(a2.array[0].s === a.array[0].s);
+      console.log(a2.array[0].bool === a.array[0].bool);
+      console.log(a2.array[0].n === a.array[0].n);
+      console.log(a2.array[0].u === a.array[0].u);
+      console.log(a2.array[0].sym === a.array[0].sym);
+      console.log(a2.array[1] === a.array[1]);
+      console.log(a2.fn !== a.fn);
+      console.log(a2.date !== a.date);
+      console.log(a2.re !== a.re);
+    </script>
+  </body>
+</html>
